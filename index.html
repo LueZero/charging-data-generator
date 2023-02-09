@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>charging data generator</title>
+
+    <link href="./public/css/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <link href="./public/css/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-3">
+                <label class="form-label">trx_id</label>
+                <input type="text" class="form-control" placeholder="trx_id" id="trx_id" value="APRINBOX">
+            </div>
+            <div class="col-3">
+                <label class="form-label">type_id</label>
+                <input type="text" class="form-control" placeholder="type_id" id="type_id" value="I">
+            </div>
+            <div class="col-3">
+                <label class="form-label text-danger">innerbox_id (補 0000)</label>
+                <input type="text" class="form-control" placeholder="innerbox_id" id="innerbox_id" value="BT1A122C08">
+            </div>
+            <div class="col-3">
+                <label class="form-label">cell_rank</label>
+                <input type="text" class="form-control" placeholder="cell_rank" id="cell_rank" value="A1">
+            </div>
+            <div class="col-3">
+                <label class="form-label">boxing_datetime</label>
+                <input type="text" class="form-control" placeholder="boxing_datetime" id="boxing_datetime"
+                    value="2022-12-08 09.49.00">
+            </div>
+            <div class="col-3">
+                <label class="form-label text-danger">cell_name (補 00000)</label>
+                <input type="text" class="form-control" placeholder="cell" id="cell_name" value="31CC010">
+            </div>
+            <div class="col-3">
+                <label class="form-label text-danger">cell_cnt</label>
+                <input type="number" class="form-control" placeholder="cell_cnt" id="cell_cnt" value="100">
+            </div>
+            <div class="col-3 mb-3">
+                <label class="form-label text-danger">cell (iary=[幾顆])</label>
+                <input type="number" class="form-control" placeholder="cell" id="cell" value="100">
+            </div>
+            <div class="mb-3 col-12">
+                <button type="submit" class="btn btn-primary mb-3" id="create">產生</button>
+            </div>
+        </div>
+        <textarea id="json" class="form-control autosize"></textarea>
+    </div>
+    <script src="./public/js/jquery3.5.1.min.js"></script>
+    <script>
+        var autosize = document.getElementsByClassName('autosize')[0];
+
+        $('#create').click(function () {
+            let html = "";
+            let json;
+            let trx_id = $('#trx_id').val();
+            let type_id = $('#type_id').val();
+            let innerbox_id = $('#innerbox_id').val();
+            let cell_rank = $('#cell_rank').val();
+            let boxing_datetime = $('#boxing_datetime').val();
+            let cell_name = $('#cell_name').val();
+            let cell_cnt = $('#cell_cnt').val();
+            let cell = $('#cell').val();
+            let portion = Math.round(cell_cnt / cell);
+            let start = 1;
+            let end = cell;
+
+            if (trx_id == null || trx_id == "") 
+            {
+                alert("trx_id is empty");
+                return;
+            }
+            
+            if (type_id == null || type_id == "") 
+            {
+                alert("type_id is empty");
+                return;
+            }
+            
+            if (innerbox_id == null || innerbox_id == "") 
+            {
+                alert("innerbox_id is empty");
+                return;
+            }
+            
+            if (cell_rank == null || cell_rank == "") {
+                alert("cell_rank is empty");
+                return;
+            }
+            
+            if (boxing_datetime == null || boxing_datetime == "") 
+            {
+                alert("boxing_datetime is empty");
+                return;
+            }
+                
+            if (cell_cnt == null || cell_cnt == "") 
+            {
+                alert("cell_cnt is empty.");
+                return;
+            }
+            
+            if (parseInt(cell_cnt) < 0) 
+            {
+                alert("cell_cnt cannot be negative.");
+                return;
+            }
+           
+            if (parseInt(cell) < 0) {
+                alert("cell cannot be negative.");
+                return;
+            }
+
+            if (portion < 1) 
+                portion = 1;
+
+            for (let index = 1; index <= portion; index++) 
+            {
+                json = {};
+                json['trx_id'] = trx_id;
+                json['type_id'] = type_id;
+                json['innerbox_id'] = innerbox_id + index.toString().padStart(4, '0');
+                json['cell_rank'] = cell_rank;
+                json['boxing_datetime'] = boxing_datetime;
+                json['cell_cnt'] = cell_cnt;
+                json['iary'] = [];
+
+                for (start; start <= end; start++) 
+                    if (start <= parseInt(cell_cnt))
+                        json['iary'].push({cell_id: cell_name + start.toString().padStart(5, '0')});
+
+                end = (start + parseInt(cell))-1;
+
+                html += JSON.stringify(json, undefined, 2) + ',';
+            }
+
+            html = html.substring(0, html.length - 1);
+
+            document.getElementById("json").textContent = html;
+            resize(autosize);
+        });
+
+        addEvent(autosize, ['change', 'cut', 'paste', 'keydown'], e => resize(autosize));
+
+        function addEvent(el, types, fn) {
+            if (typeof types === 'string') types = [types];
+            types.forEach(type => el.addEventListener(type, fn));
+        }
+
+        function resize(ara) {
+            ara.style.height = 'auto'; /* Always set to auto before resizing... */
+            ara.style.height = ara.scrollHeight + 'px';
+        }
+    </script>
+</body>
+
+</html>
