@@ -65,7 +65,7 @@
             let cell_name = $('#cell_name').val();
             let cell_cnt = $('#cell_cnt').val();
             let cell = $('#cell').val();
-            let portion = Math.round(cell_cnt / cell);
+            let portion = (cell_cnt / cell) + 1;
             let start = 1;
             let end = cell;
 
@@ -115,9 +115,6 @@
                 return;
             }
 
-            if (portion < 1) 
-                portion = 1;
-
             for (let index = 1; index <= portion; index++) 
             {
                 json = {};
@@ -133,9 +130,10 @@
                     if (start <= parseInt(cell_cnt))
                         json['iary'].push({cell_id: cell_name + start.toString().padStart(5, '0')});
 
-                end = (start + parseInt(cell))-1;
-
-                html += JSON.stringify(json, undefined, 2) + ',';
+                if(json['iary'].length > 0) {
+                    end = (start + parseInt(cell))-1;
+                    html += JSON.stringify(json, undefined, 2) + ',';
+                }
             }
 
             html = html.substring(0, html.length - 1);
